@@ -37,6 +37,7 @@ def get_token_throughput_latencies(
     max_num_completed_requests: int = 500,
     test_timeout_s=90,
     llm_api="openai",
+    use_ttft_for_itl:bool = True,
 ) -> Tuple[Dict[str, Any], List[Dict[str, Any]]]:
     """Get the token throughput and latencies for the given model.
 
@@ -107,6 +108,7 @@ def get_token_throughput_latencies(
                 prompt=prompts[request_index],
                 sampling_params=default_sampling_params,
                 llm_api=llm_api,
+                use_ttft_for_itl=use_ttft_for_itl
             )
             req_launcher.launch_requests(request_config)
 
@@ -292,6 +294,7 @@ def run_token_benchmark(
     additional_sampling_params: str,
     results_dir: str,
     user_metadata: Dict[str, Any],
+    use_ttft_for_itl: bool
 ):
     """
     Args:
@@ -327,6 +330,7 @@ def run_token_benchmark(
         stddev_output_tokens=stddev_output_tokens,
         num_concurrent_requests=num_concurrent_requests,
         additional_sampling_params=json.loads(additional_sampling_params),
+        use_ttft_for_itl=use_ttft_for_itl
     )
 
     if results_dir:
@@ -462,6 +466,15 @@ args.add_argument(
         "name=foo,bar=1. These will be added to the metadata field of the results. "
     ),
 )
+args.add_argument(
+    "--use-ttft-for-itl",
+    type=bool,
+    default=True,
+    help=(
+        "A comma separated list of metadata to include in the results, e.g. "
+        "name=foo,bar=1. These will be added to the metadata field of the results. "
+    ),
+)
 
 if __name__ == "__main__":
     env_vars = dict(os.environ)
@@ -488,4 +501,5 @@ if __name__ == "__main__":
         additional_sampling_params=args.additional_sampling_params,
         results_dir=args.results_dir,
         user_metadata=user_metadata,
+        use_ttft_for_itl=args.use_ttft_for_itl
     )

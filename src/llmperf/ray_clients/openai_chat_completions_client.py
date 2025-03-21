@@ -92,7 +92,8 @@ class OpenAIChatCompletionsClient(LLMClient):
                     if delta.get("content", None):
                         if not ttft:
                             ttft = time.monotonic() - start_time
-                            time_to_next_token.append(ttft)
+                            if request_config.use_ttft_for_itl:
+                                time_to_next_token.append(ttft)
                         else:
                             time_to_next_token.append(
                                 time.monotonic() - most_recent_received_token_time
